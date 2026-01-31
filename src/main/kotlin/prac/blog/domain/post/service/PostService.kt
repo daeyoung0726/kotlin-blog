@@ -25,8 +25,8 @@ class PostService(
     }
 
     @Transactional(readOnly = true)
-    fun readById(id: Long): PostRes.Detail {
-        return postRepository.findDetailsById(id)
+    fun readById(userId: Long?, postId: Long): PostRes.Detail {
+        return postRepository.findDetailsById(postId, userId)
             ?: throw CustomException(PostErrorType.NOT_FOUND)
     }
 

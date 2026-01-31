@@ -34,10 +34,11 @@ class PostController(
     @GetMapping("/{postId}")
     fun readById(
         @PathVariable postId: Long,
+        @RequestParam(name = "userId", required = false) userId: Long?,
     ): ResponseEntity<*> {
         return ResponseEntity.ok(
             SuccessResponse.from(
-                postService.readById(postId)
+                postService.readById(userId, postId)
             )
         )
     }
