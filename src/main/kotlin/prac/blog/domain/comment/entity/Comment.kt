@@ -19,7 +19,9 @@ class Comment(
     content: String,
     post: Post,
     user: User,
-): BaseEntity() {
+    parent: Comment?,
+    depth: Int,
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -27,6 +29,10 @@ class Comment(
 
     @Column(nullable = false)
     var content: String = content
+        protected set
+
+    @Column(nullable = false)
+    var depth: Int = depth
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,6 +43,11 @@ class Comment(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     var post: Post = post
+        protected set
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    var parent: Comment? = parent
         protected set
 
     fun updateInfo(

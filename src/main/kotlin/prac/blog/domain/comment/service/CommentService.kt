@@ -27,10 +27,39 @@ class CommentService(
     ) {
         val user = userRepository.findById(userId)
             .orElseThrow { CustomException(UserErrorType.NOT_FOUND) }
+
         val post = postRepository.findById(postId)
             .orElseThrow { CustomException(PostErrorType.NOT_FOUND) }
 
-        commentRepository.save(commentDto.toEntity(user, post))
+        val parent = getValidParentCommentOrNull(
+            postId,
+            commentDto.parentId
+        )
+
+        val depth = if (parent == null) 1 else parent.depth + 1
+        if (depth > 3) {
+            throw CustomException(CommentErrorType.REPLY_DEPTH_EXCEEDED)
+        }
+
+        commentRepository.save(commentDto.toEntity(user, post, parent, depth))
+    }
+
+    private fun getValidParentCommentOrNull(
+        postId: Long,
+        parentId: Long?,
+    ): Comment? {
+        if (parentId == null) {
+            return null
+        }
+
+        val parent = commentRepository.findById(parentId)
+            .orElseThrow { CustomException(CommentErrorType.NOT_FOUND) }
+
+        if (parent.post.id != postId) {
+            throw CustomException(CommentErrorType.PARENT_POST_MISMATCH)
+        }
+
+        return parent
     }
 
     @Transactional(readOnly = true)
