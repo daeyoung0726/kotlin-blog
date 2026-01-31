@@ -34,10 +34,11 @@ class CommentController(
     @GetMapping("/posts/{postId}/comments")
     fun readByPostId(
         @PathVariable postId: Long,
+        @RequestParam(name = "userId", required = false) userId: Long?,
     ): ResponseEntity<*> {
         return ResponseEntity.ok(
             SuccessResponse.from(
-                commentService.readByPostId(postId)
+                commentService.readByPostId(userId, postId)
             )
         )
     }

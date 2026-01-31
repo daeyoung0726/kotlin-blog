@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional
 import prac.blog.common.response.exception.CustomException
 import prac.blog.domain.comment.dto.CommentReq
 import prac.blog.domain.comment.dto.CommentRes
+import prac.blog.domain.comment.entity.Comment
 import prac.blog.domain.comment.exception.CommentErrorType
 import prac.blog.domain.comment.repository.CommentRepository
 import prac.blog.domain.post.exception.PostErrorType
@@ -64,8 +65,9 @@ class CommentService(
 
     @Transactional(readOnly = true)
     fun readByPostId(
+        userId: Long?,
         postId: Long,
-    ): List<CommentRes> = commentRepository.readByPostId(postId)
+    ): List<CommentRes> = commentRepository.readByPostId(postId, userId)
 
     @Transactional
     fun updateById(
