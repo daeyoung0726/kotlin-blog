@@ -35,6 +35,10 @@ class Comment(
     var depth: Int = depth
         protected set
 
+    @Column(name = "like_count", nullable = false)
+    var likeCount: Long = 0
+        protected set
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     var user: User = user
