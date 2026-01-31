@@ -54,7 +54,7 @@ class CommentService(
         }
 
         val parent = commentRepository.findById(parentId)
-            .orElseThrow { CustomException(CommentErrorType.NOT_FOUND) }
+            .orElseThrow { CustomException(CommentErrorType.PARENT_NOT_FOUND) }
 
         if (parent.post.id != postId) {
             throw CustomException(CommentErrorType.PARENT_POST_MISMATCH)
