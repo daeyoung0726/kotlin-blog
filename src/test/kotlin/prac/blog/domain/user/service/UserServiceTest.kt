@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.security.crypto.password.PasswordEncoder
 import prac.blog.common.response.exception.CustomException
 import prac.blog.domain.user.dto.UserReq
 import prac.blog.domain.user.dto.UserRes
@@ -29,6 +30,9 @@ class UserServiceTest {
     @MockK
     private lateinit var userRepository: UserRepository
 
+    @MockK
+    private lateinit var passwordEncoder: PasswordEncoder
+
     @InjectMockKs
     private lateinit var userService: UserService
 
@@ -40,17 +44,18 @@ class UserServiceTest {
         @DisplayName("성공")
         fun success() {
             // given
-            val dto = mockk<UserReq.SignUp>()
+            val dto = mockk<UserReq.SignUp>(relaxed = true)
             val user = mockk<User>()
 
-            every { dto.toEntity() } returns user
+            every { passwordEncoder.encode(any()) } returns "encodedPw"
+            every { dto.toEntity("encodedPw") } returns user
             every { userRepository.save(user) } returns user
 
             // when
             userService.save(dto)
 
             // then
-            verify(exactly = 1) { dto.toEntity() }
+            verify(exactly = 1) { dto.toEntity(any()) }
             verify(exactly = 1) { userRepository.save(user) }
         }
     }
