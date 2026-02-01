@@ -2,9 +2,9 @@ package prac.blog.domain.user.controller
 
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 import prac.blog.common.response.success.SuccessResponse
 import prac.blog.domain.user.dto.UserReq
 import prac.blog.domain.user.service.UserService
+import prac.blog.security.authentication.CustomUserDetails
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -28,13 +29,13 @@ class UserController(
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/me")
     fun readById(
-        @PathVariable userId: Long,
+        @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<*> {
         return ResponseEntity.ok(
             SuccessResponse.from(
-                userService.readById(userId)
+                userService.readById(userDetails.userId)
             )
         )
     }
@@ -48,20 +49,20 @@ class UserController(
         )
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping
     fun updateById(
-        @PathVariable userId: Long,
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @RequestBody @Valid request: UserReq.Update,
     ): ResponseEntity<*> {
-        userService.updateById(userId, request)
+        userService.updateById(userDetails.userId, request)
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping
     fun deleteById(
-        @PathVariable userId: Long,
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
     ): ResponseEntity<*> {
-        userService.deleteById(userId)
+        userService.deleteById(userDetails.userId)
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 }

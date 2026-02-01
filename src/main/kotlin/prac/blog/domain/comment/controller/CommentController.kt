@@ -2,6 +2,7 @@ package prac.blog.domain.comment.controller
 
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -9,11 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import prac.blog.common.response.success.SuccessResponse
 import prac.blog.domain.comment.dto.CommentReq
 import prac.blog.domain.comment.service.CommentService
+import prac.blog.security.authentication.CustomUserDetails
 
 @RestController
 @RequestMapping("/api/v1")
@@ -23,42 +24,42 @@ class CommentController(
 
     @PostMapping("/posts/{postId}/comments")
     fun save(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @PathVariable postId: Long,
         @RequestBody @Valid request: CommentReq,
-        @RequestParam(name = "userId") userId: Long,
     ): ResponseEntity<*> {
-        commentService.save(userId, postId, request)
+        commentService.save(userDetails.userId, postId, request)
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 
     @GetMapping("/posts/{postId}/comments")
     fun readByPostId(
+        @AuthenticationPrincipal userDetails: CustomUserDetails?,
         @PathVariable postId: Long,
-        @RequestParam(name = "userId", required = false) userId: Long?,
     ): ResponseEntity<*> {
         return ResponseEntity.ok(
             SuccessResponse.from(
-                commentService.readByPostId(userId, postId)
+                commentService.readByPostId(userDetails?.userId, postId)
             )
         )
     }
 
     @PutMapping("/comments/{commentId}")
     fun updateById(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @PathVariable commentId: Long,
         @RequestBody @Valid request: CommentReq,
-        @RequestParam(name = "userId") userId: Long,
     ): ResponseEntity<*> {
-        commentService.updateById(userId, commentId, request)
+        commentService.updateById(userDetails.userId, commentId, request)
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 
     @DeleteMapping("/comments/{commentId}")
     fun delete(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @PathVariable commentId: Long,
-        @RequestParam(name = "userId") userId: Long,
     ): ResponseEntity<*> {
-        commentService.delete(userId, commentId)
+        commentService.delete(userDetails.userId, commentId)
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 }
