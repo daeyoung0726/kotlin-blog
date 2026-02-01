@@ -23,10 +23,10 @@ class UserReq {
         @field:Size(min = 2, max = 20, message = "nickname은 2~20자여야 합니다.")
         val nickname: String,
     ) {
-        fun toEntity(): User =
+        fun toEntity(encodedPassword: String): User =
             User(
                 username = username,
-                password = password,
+                password = encodedPassword,
                 email = email,
                 nickname = nickname
             )
