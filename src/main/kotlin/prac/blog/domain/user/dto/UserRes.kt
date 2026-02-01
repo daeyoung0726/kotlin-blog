@@ -6,7 +6,6 @@ class UserRes {
     data class Detail(
         val id: Long,
         val username: String,
-        val password: String,
         val email: String,
         val nickname: String,
     ) {
@@ -15,7 +14,6 @@ class UserRes {
                 Detail(
                     id = requireNotNull(user.id) { "User id must not be null" },
                     username = user.username,
-                    password = user.password,
                     email = user.email,
                     nickname = user.nickname
                 )

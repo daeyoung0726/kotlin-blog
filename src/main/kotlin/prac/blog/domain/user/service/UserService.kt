@@ -1,5 +1,6 @@
 package prac.blog.domain.user.service
 
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import prac.blog.common.response.exception.CustomException
@@ -11,11 +12,14 @@ import prac.blog.domain.user.repository.UserRepository
 @Service
 class UserService(
     private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder,
 ) {
 
     @Transactional
     fun save(userDto: UserReq.SignUp) {
-        userRepository.save(userDto.toEntity())
+        userRepository.save(
+            userDto.toEntity(passwordEncoder.encode(userDto.password))
+        )
     }
 
     @Transactional(readOnly = true)
