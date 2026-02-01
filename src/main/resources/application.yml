@@ -19,6 +19,11 @@ spring:
         format_sql: true
         highlight_sql: true
 
+jwt:
+  secret: ${JWT_KEY:exampleSecretKeyForYourNewsSystemAccessSecretKeyTestForPadding}
+  access-expiration: ${JWT_ACCESS_EXPIRATION:1800000}
+  issuer: ${JWT_ISSUER:kotlin-blog}
+
 logging:
   level:
     org.hibernate.SQL: debug
