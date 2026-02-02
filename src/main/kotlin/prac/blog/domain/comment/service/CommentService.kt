@@ -2,6 +2,9 @@ package prac.blog.domain.comment.service
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import prac.blog.common.permission.CheckDataPermission
+import prac.blog.common.permission.PermissionId
+import prac.blog.common.permission.ResourceDomain
 import prac.blog.common.response.exception.CustomException
 import prac.blog.domain.comment.dto.CommentReq
 import prac.blog.domain.comment.dto.CommentRes
@@ -70,33 +73,22 @@ class CommentService(
     ): List<CommentRes> = commentRepository.readByPostId(postId, userId)
 
     @Transactional
+    @CheckDataPermission(domain = ResourceDomain.COMMENT)
     fun updateById(
-        userId: Long,
-        commentId: Long,
+        @PermissionId commentId: Long,
         commentDto: CommentReq,
     ) {
         val comment = commentRepository.findById(commentId)
             .orElseThrow { CustomException(CommentErrorType.NOT_FOUND) }
 
-        if (!comment.isOwner(userId)) {
-            throw CustomException(CommentErrorType.NO_PERMISSION)
-        }
-
         comment.updateInfo(content = commentDto.content)
     }
 
     @Transactional
-    fun delete(
-        userId: Long,
-        commentId: Long,
+    @CheckDataPermission(domain = ResourceDomain.COMMENT)
+    fun deleteById(
+        @PermissionId commentId: Long,
     ) {
-        val comment = commentRepository.findById(commentId)
-            .orElseThrow { CustomException(CommentErrorType.NOT_FOUND) }
-
-        if (!comment.isOwner(userId)) {
-            throw CustomException(CommentErrorType.NO_PERMISSION)
-        }
-
-        commentRepository.delete(comment)
+        commentRepository.deleteById(commentId)
     }
 }

@@ -2,11 +2,14 @@ package prac.blog.domain.post.service
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import prac.blog.common.permission.CheckDataPermission
+import prac.blog.common.permission.PermissionId
+import prac.blog.common.permission.ResourceDomain
 import prac.blog.common.response.exception.CustomException
 import prac.blog.domain.post.dto.PostReq
 import prac.blog.domain.post.dto.PostRes
-import prac.blog.domain.post.repository.PostRepository
 import prac.blog.domain.post.exception.PostErrorType
+import prac.blog.domain.post.repository.PostRepository
 import prac.blog.domain.user.exception.UserErrorType
 import prac.blog.domain.user.repository.UserRepository
 
@@ -36,17 +39,13 @@ class PostService(
     }
 
     @Transactional
+    @CheckDataPermission(domain = ResourceDomain.POST)
     fun updateById(
-        userId: Long,
-        postId: Long,
+        @PermissionId postId: Long,
         postDto: PostReq,
     ) {
         val post = postRepository.findById(postId)
             .orElseThrow { CustomException(PostErrorType.NOT_FOUND) }
-
-        if (!post.isOwner(userId)) {
-            throw CustomException(PostErrorType.NO_PERMISSION)
-        }
 
         post.updateInfo(
             title = postDto.title,
@@ -55,18 +54,11 @@ class PostService(
     }
 
     @Transactional
-    fun delete(
-        userId: Long,
-        postId: Long,
+    @CheckDataPermission(domain = ResourceDomain.POST)
+    fun deleteById(
+        @PermissionId postId: Long,
     ) {
-        val post = postRepository.findById(postId)
-            .orElseThrow { CustomException(PostErrorType.NOT_FOUND) }
-
-        if (!post.isOwner(userId)) {
-            throw CustomException(PostErrorType.NO_PERMISSION)
-        }
-
-        postRepository.delete(post)
+        postRepository.deleteById(postId)
     }
 
 }
