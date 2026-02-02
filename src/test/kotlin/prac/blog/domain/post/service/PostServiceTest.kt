@@ -150,7 +150,6 @@ class PostServiceTest {
     @DisplayName("수정")
     inner class UpdateById {
 
-        private val userId = 1L
         private val postId = 1L
 
         @Test
@@ -164,15 +163,13 @@ class PostServiceTest {
             )
 
             every { postRepository.findById(postId) } returns Optional.of(post)
-            every { post.isOwner(userId) } returns true
             every { post.updateInfo(dto.title, dto.content) } just Runs
 
             // when
-            postService.updateById(userId, postId, dto)
+            postService.updateById(postId, dto)
 
             // then
             verify(exactly = 1) { postRepository.findById(postId) }
-            verify(exactly = 1) { post.isOwner(userId) }
             verify(exactly = 1) { post.updateInfo(dto.title, dto.content) }
         }
 
@@ -186,34 +183,12 @@ class PostServiceTest {
 
             // when
             val exception = assertThrows(CustomException::class.java) {
-                postService.updateById(userId, postId, dto)
+                postService.updateById(postId, dto)
             }
 
             // then
             assertEquals(PostErrorType.NOT_FOUND, exception.errorType)
             verify(exactly = 1) { postRepository.findById(postId) }
-        }
-
-        @Test
-        @DisplayName("실패 - 작성자가 아님")
-        fun noPermission() {
-            // given
-            val dto = mockk<PostReq>()
-            val post = mockk<Post>()
-
-            every { postRepository.findById(postId) } returns Optional.of(post)
-            every { post.isOwner(userId) } returns false
-
-            // when
-            val exception = assertThrows(CustomException::class.java) {
-                postService.updateById(userId, postId, dto)
-            }
-
-            // then
-            assertEquals(PostErrorType.NO_PERMISSION, exception.errorType)
-            verify(exactly = 1) { postRepository.findById(postId) }
-            verify(exactly = 1) { post.isOwner(userId) }
-            verify(exactly = 0) { post.updateInfo(any(), any()) }
         }
     }
 
@@ -221,64 +196,21 @@ class PostServiceTest {
     @DisplayName("삭제")
     inner class Delete {
 
-        private val userId = 1L
         private val postId = 1L
 
         @Test
         @DisplayName("성공")
         fun success() {
             // given
-            val post = mockk<Post>()
-
-            every { postRepository.findById(postId) } returns Optional.of(post)
-            every { post.isOwner(userId) } returns true
-            every { postRepository.delete(post) } just Runs
+            every { postRepository.deleteById(postId) } just Runs
 
             // when
-            postService.delete(userId, postId)
+            postService.deleteById(postId)
 
             // then
-            verify(exactly = 1) { postRepository.findById(postId) }
-            verify(exactly = 1) { post.isOwner(userId) }
-            verify(exactly = 1) { postRepository.delete(post) }
+            verify(exactly = 1) { postRepository.deleteById(postId) }
         }
 
-        @Test
-        @DisplayName("실패 - 게시글이 존재하지 않음")
-        fun postNotFound() {
-            // given
-            every { postRepository.findById(postId) } returns Optional.empty()
-
-            // when
-            val exception = assertThrows(CustomException::class.java) {
-                postService.delete(userId, postId)
-            }
-
-            // then
-            assertEquals(PostErrorType.NOT_FOUND, exception.errorType)
-            verify(exactly = 0) { postRepository.delete(any()) }
-        }
-
-        @Test
-        @DisplayName("실패 - 작성자가 아님")
-        fun noPermission() {
-            // given
-            val post = mockk<Post>()
-
-            every { postRepository.findById(postId) } returns Optional.of(post)
-            every { post.isOwner(userId) } returns false
-
-            // when
-            val exception = assertThrows(CustomException::class.java) {
-                postService.delete(userId, postId)
-            }
-
-            // then
-            assertEquals(PostErrorType.NO_PERMISSION, exception.errorType)
-            verify(exactly = 1) { postRepository.findById(postId) }
-            verify(exactly = 1) { post.isOwner(userId) }
-            verify(exactly = 0) { postRepository.delete(any()) }
-        }
     }
 
 }

@@ -178,7 +178,6 @@ class CommentServiceTest {
     @DisplayName("수정")
     inner class UpdateById {
 
-        private val userId = 1L
         private val commentId = 1L
 
         @Test
@@ -189,15 +188,13 @@ class CommentServiceTest {
             val dto = CommentReq("new", 1L)
 
             every { commentRepository.findById(commentId) } returns Optional.of(comment)
-            every { comment.isOwner(userId) } returns true
             every { comment.updateInfo(dto.content) } just Runs
 
             // when
-            commentService.updateById(userId, commentId, dto)
+            commentService.updateById(commentId, dto)
 
             // then
             verify(exactly = 1) { commentRepository.findById(commentId) }
-            verify(exactly = 1) { comment.isOwner(userId) }
             verify(exactly = 1) { comment.updateInfo(dto.content) }
         }
 
@@ -211,34 +208,12 @@ class CommentServiceTest {
 
             // when
             val exception = assertThrows(CustomException::class.java) {
-                commentService.updateById(userId, commentId, dto)
+                commentService.updateById(commentId, dto)
             }
 
             // then
             assertEquals(CommentErrorType.NOT_FOUND, exception.errorType)
             verify(exactly = 1) { commentRepository.findById(commentId) }
-        }
-
-        @Test
-        @DisplayName("실패 - 작성자가 아님")
-        fun noPermission() {
-            // given
-            val comment = mockk<Comment>()
-            val dto = mockk<CommentReq>()
-
-            every { commentRepository.findById(commentId) } returns Optional.of(comment)
-            every { comment.isOwner(any()) } returns false
-
-            // when
-            val exception = assertThrows(CustomException::class.java) {
-                commentService.updateById(1L, 1L, dto)
-            }
-
-            // then
-            assertEquals(CommentErrorType.NO_PERMISSION, exception.errorType)
-            verify(exactly = 1) { commentRepository.findById(commentId) }
-            verify(exactly = 1) { comment.isOwner(userId) }
-            verify(exactly = 0) { comment.updateInfo(dto.content) }
         }
     }
 
@@ -246,64 +221,20 @@ class CommentServiceTest {
     @DisplayName("삭제")
     inner class Delete {
 
-        private val userId = 1L
         private val commentId = 1L
 
         @Test
         @DisplayName("성공")
         fun success() {
             // given
-            val comment = mockk<Comment>()
-
-            every { commentRepository.findById(any()) } returns Optional.of(comment)
-            every { comment.isOwner(any()) } returns true
-            every { commentRepository.delete(comment) } just Runs
+            every { commentRepository.deleteById(commentId) } just Runs
 
             // when
-            commentService.delete(userId, commentId)
+            commentService.deleteById(commentId)
 
             // then
-            verify(exactly = 1) { commentRepository.findById(any()) }
-            verify(exactly = 1) { comment.isOwner(any()) }
-            verify(exactly = 1) { commentRepository.delete(comment) }
-        }
-
-        @Test
-        @DisplayName("실패 - 댓글 존재하지 않음")
-        fun commentNotFound() {
-            // given
-            every { commentRepository.findById(any()) } returns Optional.empty()
-
-            // when
-            val exception = assertThrows(CustomException::class.java) {
-                commentService.delete(userId, commentId)
-            }
-
-            // then
-            assertEquals(CommentErrorType.NOT_FOUND, exception.errorType)
-            verify(exactly = 1) { commentRepository.findById(commentId) }
-            verify(exactly = 0) { commentRepository.delete(any()) }
-        }
-
-        @Test
-        @DisplayName("실패 - 작성자가 아님")
-        fun noPermission() {
-            // given
-            val comment = mockk<Comment>()
-
-            every { commentRepository.findById(commentId) } returns Optional.of(comment)
-            every { comment.isOwner(any()) } returns false
-
-            // when
-            val exception = assertThrows(CustomException::class.java) {
-                commentService.delete(userId, commentId)
-            }
-
-            // then
-            assertEquals(CommentErrorType.NO_PERMISSION, exception.errorType)
-            verify(exactly = 1) { commentRepository.findById(any()) }
-            verify(exactly = 1) { comment.isOwner(any()) }
-            verify(exactly = 0) { commentRepository.delete(comment) }
+            verify(exactly = 1) { commentRepository.deleteById(commentId) }
+            verify(exactly = 0) { commentRepository.findById(any()) }
         }
     }
 }
