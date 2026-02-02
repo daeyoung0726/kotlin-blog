@@ -46,20 +46,18 @@ class CommentController(
 
     @PutMapping("/comments/{commentId}")
     fun updateById(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @PathVariable commentId: Long,
         @RequestBody @Valid request: CommentReq,
     ): ResponseEntity<*> {
-        commentService.updateById(userDetails.userId, commentId, request)
+        commentService.updateById(commentId, request)
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 
     @DeleteMapping("/comments/{commentId}")
-    fun delete(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
+    fun deleteById(
         @PathVariable commentId: Long,
     ): ResponseEntity<*> {
-        commentService.delete(userDetails.userId, commentId)
+        commentService.deleteById(commentId)
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 }

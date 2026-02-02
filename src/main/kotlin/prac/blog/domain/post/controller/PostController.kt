@@ -55,22 +55,20 @@ class PostController(
 
     @PutMapping("/{postId}")
     fun updateById(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @PathVariable postId: Long,
         @RequestBody @Valid request: PostReq,
     ): ResponseEntity<*> {
 
-        postService.updateById(userDetails.userId, postId, request)
+        postService.updateById(postId, request)
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 
     @DeleteMapping("/{postId}")
-    fun delete(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
+    fun deleteById(
         @PathVariable postId: Long,
     ): ResponseEntity<*> {
 
-        postService.delete(userDetails.userId, postId)
+        postService.deleteById(postId)
         return ResponseEntity.ok(SuccessResponse.ok())
     }
 }
