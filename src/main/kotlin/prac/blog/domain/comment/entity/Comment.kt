@@ -59,8 +59,4 @@ class Comment(
     ) {
         this.content = content
     }
-
-    fun isOwner(userId: Long): Boolean {
-        return this.user.id == userId
-    }
 }

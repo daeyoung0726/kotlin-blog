@@ -48,8 +48,4 @@ class Post(
         this.title = title
         this.content = content
     }
-
-    fun isOwner(userId: Long): Boolean {
-        return this.user.id == userId
-    }
 }
